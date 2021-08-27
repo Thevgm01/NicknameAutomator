@@ -43,7 +43,16 @@ def getRandomCoords(*cols):
 
 def getRandomEntry(*cols):
     coords = getRandomCoordsFixed(cols)
-    return data[coords[0]][coords[1]]
+    return getEntry(coords)
+
+
+def getEntry(coords):
+    entry = data[coords[0]][coords[1]]
+    if '|' in entry:
+        entries = entry.split('|')
+        return random.choice(entries)
+    else:
+        return entry
 
 
 def generateNickname():
@@ -55,7 +64,7 @@ def generateNickname():
     # Any subject, don't proceed until one is found
     while not components:
         coords = getRandomCoords('M', 'N', 'O')
-        entry = data[coords[0]][coords[1]]
+        entry = getEntry(coords)
         if entry:
             components.append(entry)
             if coords[1] == ord('M') - ord('A'):
@@ -76,7 +85,7 @@ def generateNickname():
     descriptors = []
     while True:
         coords = getRandomCoords('I', 'J')
-        entry = data[coords[0]][coords[1]]
+        entry = getEntry(coords)
         if entry and coords[1] == ord('I'):
             # TODO Track components added here
             entry = getRandomEntry('H') + entry + getRandomEntry('K')
@@ -117,10 +126,10 @@ def generateNickname():
         coords = getRandomCoords('P', 'R')
     else:
         coords = getRandomCoords('P', 'Q')
-    entry = data[coords[0]][coords[1]]
+    entry = getEntry(coords)
     if entry:
-        if subjectEndsInVowel and coords[1] == ord('Q') and data[coords[0]][coords[1] + 1]:
-            entry = data[coords[0]][coords[1] + 1]
+        if subjectEndsInVowel and coords[1] == ord('Q') and getEntry(coords):
+            entry = getEntry(coords)
         components[-1] = components[-1] + entry
         componentsAdded += 1
 
