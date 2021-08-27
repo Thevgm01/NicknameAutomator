@@ -1,6 +1,7 @@
 import random
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from titlecase import titlecase
 
 
 class Plurality:
@@ -147,17 +148,8 @@ def generateNickname():
     if componentsAdded <= 1:
         return ""
 
-    temp_result = " ".join(components)
-    result = ""
-
-    # Capitalize
-    i = 0
-    while i < len(temp_result):
-        if i == 0 or temp_result[i - 1] == ' ' or temp_result[i - 1] == '-':
-            result += temp_result[i].upper()
-        else:
-            result += temp_result[i]
-        i += 1
+    result = " ".join(components)
+    result = titlecase(result)
 
     return result
 
