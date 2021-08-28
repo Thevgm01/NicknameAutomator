@@ -114,9 +114,19 @@ def generateNickname():
         coords = getRandomCoords(WordType.ADJECTIVE, WordType.DESCRIPTOR)
         entry = getEntry(coords)
         if entry and coords[1] == WordType.ADJECTIVE:
-            # TODO Track components added here
-            entry = getRandomEntry(WordType.ADVERB) + entry + getRandomEntry(WordType.POST_ADJECTIVE)
+            entry2 = getRandomEntry(WordType.ADVERB)
+            if entry2:
+                hasAdverb = True
+                descriptors.append(entry2)
+                componentsAdded += 1
+
+            entry2 = getRandomEntry(WordType.POST_ADJECTIVE)
+            if entry2:
+                entry = entry + entry2
+                componentsAdded += 1
+
             descriptors.append(entry)
+
             componentsAdded += 1
         else:
             if entry:
@@ -214,7 +224,7 @@ numRows = len(data) - rowOffset
 numCols = len(data[0]) - colOffset
 
 i = 0
-while i < 20:
+while i < 50:
     nickname = generateNickname()
     if nickname:
         print(nickname)
