@@ -58,8 +58,6 @@ class WordType:
 def getRandomCoordsFromTuple(cols):
     randRow = random.randrange(0, numRows - 1) + rowOffset
     randCol = random.choice(cols)
-    if type(randCol) is str:
-        randCol = mapLetter(randCol)
     return [randRow, randCol]
 
 
