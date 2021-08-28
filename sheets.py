@@ -4,10 +4,45 @@ from oauth2client.service_account import ServiceAccountCredentials
 from titlecase import titlecase
 
 
+class Incrementer:
+    value = -1
+
+    def increment(self):
+        self.value += 1
+        return self.value
+
+    def reset(self, v):
+        self.value = v
+        return v
+
+incrementer = Incrementer()
+
 class Plurality:
-    ANY = 0
-    SINGULAR = 1
-    PLURAL = 2
+    ANY = incrementer.reset(0)
+    SINGULAR = incrementer.increment()
+    PLURAL = incrementer.increment()
+
+
+class WordType:
+    PRE_EVERYTHING = incrementer.reset(3)
+    PRE_EVERYTHING_SINGULAR = incrementer.increment()
+    QUANTITY_PLURAL = incrementer.increment()
+    CURSE = incrementer.increment()
+    ADVERB = incrementer.increment()
+    ADJECTIVE = incrementer.increment()
+    POST_ADJECTIVE = incrementer.increment()
+    DESCRIPTOR = incrementer.increment()
+    PRE_SUBJECT = incrementer.increment()
+    SUBJECT_ANY = incrementer.increment()
+    SUBJECT_SINGULAR = incrementer.increment()
+    SUBJECT_PLURAL = incrementer.increment()
+    POST_SUBJECT_SINGULAR = incrementer.increment()
+    POST_SUBJECT_AFTER_VOWEL = incrementer.increment()
+    MULTI_OBJECT_SEPARATOR = incrementer.increment()
+    MODIFIER = incrementer.increment()
+    POST_EVERYTHING = incrementer.increment()
+
+    ALL_SUBJECTS = (SUBJECT_ANY, SUBJECT_SINGULAR, SUBJECT_PLURAL)
 
 
 vowels = ['a', 'e', 'i', 'o', 'u', 'y']
@@ -26,7 +61,7 @@ def isConsonant(letter):
 
 
 def mapLetter(letter):
-    return ord(letter.upper()) - ord('A')
+    return ord(letter.upper()) - ord('A') + colOffset
 
 
 def getRandomCoordsFixed(cols):
@@ -64,32 +99,32 @@ def generateNickname():
 
     # Any subject, don't proceed until one is found
     while not components:
-        coords = getRandomCoords('M', 'N', 'O')
+        coords = getRandomCoordsFixed(WordType.ALL_SUBJECTS)
         entry = getEntry(coords)
         if entry:
             components.append(entry)
-            if coords[1] == ord('M') - ord('A'):
+            if coords[1] == WordType.SUBJECT_ANY:
                 subjectPlurality = Plurality.ANY
-            elif coords[1] == ord('N') - ord('A'):
+            elif coords[1] == WordType.SUBJECT_SINGULAR:
                 subjectPlurality = Plurality.SINGULAR
-            elif coords[1] == ord('O') - ord('A'):
+            elif coords[1] == WordType.SUBJECT_PLURAL:
                 subjectPlurality = Plurality.PLURAL
             subjectEndsInVowel = isVowel(entry[-1])
 
     # Pre Subject
-    entry = getRandomEntry('L')
+    entry = getRandomEntry(WordType.PRE_SUBJECT)
     if entry:
         components[0] = entry + components[0]
         componentsAdded += 1
 
-    # Descriptors
+    # Adjectives/Descriptors
     descriptors = []
     while True:
-        coords = getRandomCoords('I', 'J')
+        coords = getRandomCoords(WordType.ADJECTIVE, WordType.DESCRIPTOR)
         entry = getEntry(coords)
-        if entry and coords[1] == ord('I'):
+        if entry and coords[1] == WordType.ADJECTIVE:
             # TODO Track components added here
-            entry = getRandomEntry('H') + entry + getRandomEntry('K')
+            entry = getRandomEntry(WordType.ADVERB) + entry + getRandomEntry(WordType.POST_ADJECTIVE)
             descriptors.append(entry)
             componentsAdded += 1
         else:
@@ -100,23 +135,23 @@ def generateNickname():
     components = descriptors + components
 
     # Curse
-    entry = getRandomEntry('G')
+    entry = getRandomEntry(WordType.CURSE)
     if entry:
         components.insert(0, entry)
         componentsAdded += 1
 
     # Quantity
-    entry = getRandomEntry('F')
+    entry = getRandomEntry(WordType.QUANTITY_PLURAL)
     if entry and subjectPlurality != Plurality.SINGULAR:
         components.insert(0, entry)
         componentsAdded += 1
 
     # Pre Everything
     if subjectPlurality == Plurality.SINGULAR:
-        entry = getRandomEntry('D', 'E')
+        entry = getRandomEntry(WordType.PRE_EVERYTHING, WordType.PRE_EVERYTHING_SINGULAR)
         componentsAdded += 1
     else:
-        entry = getRandomEntry('D')
+        entry = getRandomEntry(WordType.PRE_EVERYTHING)
         componentsAdded += 1
     if entry:
         components.insert(0, entry)
@@ -124,23 +159,23 @@ def generateNickname():
 
     # Post Subject
     if subjectPlurality != Plurality.PLURAL:
-        coords = getRandomCoords('P', 'Q')
+        coords = getRandomCoords(WordType.POST_SUBJECT_SINGULAR)
         entry = getEntry(coords)
         if entry:
-            newCoords = [coords[0], coords[1] + 1]
+            newCoords = [coords[0], WordType.POST_SUBJECT_AFTER_VOWEL]
             if subjectEndsInVowel and getEntry(newCoords):
                 entry = getEntry(newCoords)
             components[-1] = components[-1] + entry
             componentsAdded += 1
 
     # Modifier
-    entry = getRandomEntry('T')
+    entry = getRandomEntry(WordType.MODIFIER)
     if entry:
         components.append(entry)
         componentsAdded += 1
 
     # Post Everything
-    entry = getRandomEntry('U')
+    entry = getRandomEntry(WordType.POST_EVERYTHING)
     if entry:
         components.append(entry)
         componentsAdded += 1
