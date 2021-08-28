@@ -157,7 +157,18 @@ def generateNickname():
     if componentsAdded <= 1:
         return ""
 
-    result = " ".join(components)
+    result = ' '.join(components)
+
+    # Replace 'a' with 'an'
+    result = result.split(' ')
+    i = 0
+    while i < len(result) - 1:
+        if result[i] == 'a' and isVowel(result[i + 1][0]):
+            result[i] = 'an'
+        i += 1
+    result = ' '.join(result)
+
+    # Capitalization
     result = titlecase(result)
 
     return result
