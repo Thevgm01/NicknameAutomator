@@ -25,12 +25,12 @@ def isConsonant(letter):
     return not isVowel(letter)
 
 
-rowOffset = 1
-colOffset = 2
-
-
 def mapLetter(letter):
     return ord(letter.upper()) - ord('A')
+
+
+ROW_OFFSET = 1
+COL_OFFSET = 3
 
 
 class WordType:
@@ -56,8 +56,12 @@ class WordType:
 
 
 def getRandomCoordsFromTuple(cols):
-    randRow = random.randrange(0, numRows - 1) + rowOffset
-    randCol = random.choice(cols)
+    randRow = random.randrange(ROW_OFFSET, numRows)
+    weights = []
+    for col in cols:
+        weights.append(columnWeights[col])
+    randCol = random.choices(cols, weights)[0]
+    #randCol = random.choice(cols)
     return [randRow, randCol]
 
 
@@ -182,9 +186,6 @@ def generateNickname():
     # TODO Replace all double spaces with single spaces
     # TODO Make sure the same word can't appear more than once
     # TODO Multiple subjects
-    # TODO Fix bias with selecting individual items from different columns
-    #      (calculate a ratio of filled-to-unfilled cells for each column)
-    # TODO Make the | separator work
 
     # Abort if nothing new was added
     # TODO: Make this a low chance instead of automatic?
@@ -208,6 +209,22 @@ def generateNickname():
     return result
 
 
+def generateColumnWeights():
+    weights = []
+    i = 0
+    while i < numCols:
+        count = 0
+        j = 0
+        while j < numRows:
+            entry = data[j][i]
+            if entry:
+                count += 1 + entry.count('|')
+            j += 1
+        weights.append(count)
+        i += 1
+    return weights
+
+
 scope = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/spreadsheets",
          "https://www.googleapis.com/auth/drive.file",
@@ -218,12 +235,14 @@ client = gspread.authorize(credentials)
 sheet = client.open("Nickname Categorization").sheet1  # Open the spreadsheet
 data = sheet.get_all_values()  # Get a list of all records
 
-numRows = len(data) - rowOffset
-numCols = len(data[0]) - colOffset
+numRows = len(data)
+numCols = len(data[0])
+print("%s rows x %s cols" % (numRows, numCols))
+columnWeights = generateColumnWeights()
 
-i = 0
-while i < 50:
+num = 0
+while num < 50:
     nickname = generateNickname()
     if nickname:
         print(nickname)
-        i += 1
+        num += 1
