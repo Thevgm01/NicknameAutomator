@@ -16,7 +16,7 @@ vowels = ['a', 'e', 'i', 'o', 'u', 'y']
 def isVowel(letter):
     letter = letter.lower()
     for v in vowels:
-        if v is letter:
+        if v == letter:
             return True
     return False
 
@@ -56,6 +56,7 @@ def getEntry(coords):
 
 
 def generateNickname():
+    entry = ""
     components = []
     componentsAdded = 0
     subjectPlurality = -1
@@ -123,15 +124,14 @@ def generateNickname():
 
     # Post Subject
     if subjectPlurality != Plurality.PLURAL:
-        coords = getRandomCoords('P', 'R')
-    else:
         coords = getRandomCoords('P', 'Q')
-    entry = getEntry(coords)
-    if entry:
-        if subjectEndsInVowel and coords[1] == ord('Q') and getEntry(coords):
-            entry = getEntry(coords)
-        components[-1] = components[-1] + entry
-        componentsAdded += 1
+        entry = getEntry(coords)
+        if entry:
+            newCoords = [coords[0], coords[1] + 1]
+            if subjectEndsInVowel and getEntry(newCoords):
+                entry = getEntry(newCoords)
+            components[-1] = components[-1] + entry
+            componentsAdded += 1
 
     # Modifier
     entry = getRandomEntry('T')
@@ -169,11 +169,8 @@ scope = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 
 credentials = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-
 client = gspread.authorize(credentials)
-
 sheet = client.open("Nickname Categorization").sheet1  # Open the spreadhseet
-
 data = sheet.get_all_values()  # Get a list of all records
 
 rowOffset = 1
