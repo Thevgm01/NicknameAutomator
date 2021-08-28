@@ -4,45 +4,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 from titlecase import titlecase
 
 
-class Incrementer:
-    value = -1
-
-    def increment(self):
-        self.value += 1
-        return self.value
-
-    def reset(self, v):
-        self.value = v
-        return v
-
-incrementer = Incrementer()
-
 class Plurality:
-    ANY = incrementer.reset(0)
-    SINGULAR = incrementer.increment()
-    PLURAL = incrementer.increment()
-
-
-class WordType:
-    PRE_EVERYTHING = incrementer.reset(3)
-    PRE_EVERYTHING_SINGULAR = incrementer.increment()
-    QUANTITY_PLURAL = incrementer.increment()
-    CURSE = incrementer.increment()
-    ADVERB = incrementer.increment()
-    ADJECTIVE = incrementer.increment()
-    POST_ADJECTIVE = incrementer.increment()
-    DESCRIPTOR = incrementer.increment()
-    PRE_SUBJECT = incrementer.increment()
-    SUBJECT_ANY = incrementer.increment()
-    SUBJECT_SINGULAR = incrementer.increment()
-    SUBJECT_PLURAL = incrementer.increment()
-    POST_SUBJECT_SINGULAR = incrementer.increment()
-    POST_SUBJECT_AFTER_VOWEL = incrementer.increment()
-    MULTI_OBJECT_SEPARATOR = incrementer.increment()
-    MODIFIER = incrementer.increment()
-    POST_EVERYTHING = incrementer.increment()
-
-    ALL_SUBJECTS = (SUBJECT_ANY, SUBJECT_SINGULAR, SUBJECT_PLURAL)
+    ANY = 0
+    SINGULAR = 1
+    PLURAL = 2
 
 
 vowels = ['a', 'e', 'i', 'o', 'u', 'y']
@@ -60,11 +25,37 @@ def isConsonant(letter):
     return not isVowel(letter)
 
 
+rowOffset = 1
+colOffset = 2
+
+
 def mapLetter(letter):
-    return ord(letter.upper()) - ord('A') + colOffset
+    return ord(letter.upper()) - ord('A')
 
 
-def getRandomCoordsFixed(cols):
+class WordType:
+    PRE_EVERYTHING = mapLetter('D')
+    PRE_EVERYTHING_SINGULAR = mapLetter('E')
+    QUANTITY_PLURAL = mapLetter('F')
+    CURSE = mapLetter('G')
+    ADVERB = mapLetter('H')
+    ADJECTIVE = mapLetter('I')
+    POST_ADJECTIVE = mapLetter('J')
+    DESCRIPTOR = mapLetter('K')
+    PRE_SUBJECT = mapLetter('L')
+    SUBJECT_ANY = mapLetter('M')
+    SUBJECT_SINGULAR = mapLetter('N')
+    SUBJECT_PLURAL = mapLetter('O')
+    POST_SUBJECT_SINGULAR = mapLetter('P')
+    POST_SUBJECT_AFTER_VOWEL = mapLetter('Q')
+    MULTI_OBJECT_SEPARATOR = mapLetter('R')
+    MODIFIER = mapLetter('S')
+    POST_EVERYTHING = mapLetter('T')
+
+    ALL_SUBJECTS = (SUBJECT_ANY, SUBJECT_SINGULAR, SUBJECT_PLURAL)
+
+
+def getRandomCoordsFromTuple(cols):
     randRow = random.randrange(0, numRows - 1) + rowOffset
     randCol = random.choice(cols)
     if type(randCol) is str:
@@ -73,11 +64,11 @@ def getRandomCoordsFixed(cols):
 
 
 def getRandomCoords(*cols):
-    return getRandomCoordsFixed(cols)
+    return getRandomCoordsFromTuple(cols)
 
 
 def getRandomEntry(*cols):
-    coords = getRandomCoordsFixed(cols)
+    coords = getRandomCoordsFromTuple(cols)
     return getEntry(coords)
 
 
@@ -99,7 +90,7 @@ def generateNickname():
 
     # Any subject, don't proceed until one is found
     while not components:
-        coords = getRandomCoordsFixed(WordType.ALL_SUBJECTS)
+        coords = getRandomCoordsFromTuple(WordType.ALL_SUBJECTS)
         entry = getEntry(coords)
         if entry:
             components.append(entry)
@@ -216,11 +207,9 @@ scope = ["https://spreadsheets.google.com/feeds",
 
 credentials = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(credentials)
-sheet = client.open("Nickname Categorization").sheet1  # Open the spreadhseet
+sheet = client.open("Nickname Categorization").sheet1  # Open the spreadsheet
 data = sheet.get_all_values()  # Get a list of all records
 
-rowOffset = 1
-colOffset = 2
 numRows = len(data) - rowOffset
 numCols = len(data[0]) - colOffset
 
