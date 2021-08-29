@@ -1,0 +1,27 @@
+def mapLetter(letter):
+    return ord(letter.upper()) - ord('A')
+
+
+ROW_OFFSET = 1
+COL_OFFSET = 3
+
+PRE_EVERYTHING = mapLetter('D')
+PRE_EVERYTHING_SINGULAR = mapLetter('E')
+QUANTITY_PLURAL = mapLetter('F')
+CURSE = mapLetter('G')
+ADVERB = mapLetter('H')
+ADJECTIVE = mapLetter('I')
+POST_ADJECTIVE = mapLetter('J')
+DESCRIPTOR = mapLetter('K')
+PRE_SUBJECT = mapLetter('L')
+SUBJECT_ANY = mapLetter('M')
+SUBJECT_SINGULAR = mapLetter('N')
+SUBJECT_PLURAL = mapLetter('O')
+POST_SUBJECT_SINGULAR = mapLetter('P')
+POST_SUBJECT_AFTER_VOWEL = mapLetter('Q')
+MULTI_SUBJECT_SEPARATOR = mapLetter('R')
+MODIFIER = mapLetter('S')
+POST_EVERYTHING = mapLetter('T')
+
+ALL_SUBJECTS = (SUBJECT_ANY, SUBJECT_SINGULAR, SUBJECT_PLURAL)
+ADDITIONAL_SUBJECT_COMPONENTS = (CURSE, ADVERB, ADJECTIVE, POST_ADJECTIVE, DESCRIPTOR, ALL_SUBJECTS)
