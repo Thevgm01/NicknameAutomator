@@ -1,7 +1,7 @@
 VOWELS = ['a', 'e', 'i', 'o', 'u', 'y']
 
 
-def isVowel(letter):
+def is_vowel(letter):
     letter = letter.lower()
     for v in VOWELS:
         if v == letter:
@@ -9,5 +9,5 @@ def isVowel(letter):
     return False
 
 
-def isConsonant(letter):
-    return not isVowel(letter)
+def is_consonant(letter):
+    return not is_vowel(letter)

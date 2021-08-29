@@ -1,4 +1,4 @@
-import NicknameGenerator
+import nickname_generator
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -13,11 +13,11 @@ client = gspread.authorize(credentials)
 sheet = client.open("Nickname Categorization").sheet1  # Open the spreadsheet
 data = sheet.get_all_values()  # Get a list of all records
 
-NicknameGenerator.setData(data)
+nickname_generator.set_data(data)
 
 num = 0
 while num < 50:
-    nickname = NicknameGenerator.generateNickname()
+    nickname = nickname_generator.generate_nickname()
     if nickname:
         print(nickname)
         num += 1
