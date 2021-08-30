@@ -175,14 +175,25 @@ def _generate_nickname():
     #       The Corkinator
 
     # Abort if nothing new was added
-    # TODO: Make this a low chance instead of automatic?
+    # TODO Make this a low chance instead of automatic?
     if components_added <= 1:
         return ""
 
+    # Ensure the same word can't appear twice
+    i = 0
+    while i < len(components) - 1:
+        if components[i] not in ["a", "an", "ol'", "the"]:
+            j = i + 1
+            while j < len(components):
+                if components[i] == components[j]:
+                    return ""
+                j += 1
+        i += 1
+
     result = ' '.join(components)
+    result = result.split(' ')
 
     # Replace 'a' with 'an'
-    result = result.split(' ')
     i = 0
     while i < len(result) - 1:
         if result[i] == 'a' and is_vowel(result[i + 1][0]):
