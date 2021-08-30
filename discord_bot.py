@@ -13,8 +13,19 @@ async def on_ready():
 
 
 @bot.command(name='name', help='Generates a random nickname')
-async def post_nickname(ctx):
-    response = nickname_generator.generate_nickname()
+async def post_nickname(ctx, *args):
+    num = 1
+    for arg in args:
+        if arg[0] == 'x':
+            try:
+                num = int(arg[1:])
+            except ValueError:
+                pass
+    response = ""
+    i = 0
+    while i < num:
+        response += nickname_generator.generate_nickname() + "\n"
+        i += 1
     await ctx.send(response)
 
 
