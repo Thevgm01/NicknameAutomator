@@ -43,7 +43,7 @@ def _get_entry(coords):
         return entry
 
 
-def generate_nickname():
+def _generate_nickname():
     entry = ""
     components = []
     components_added = 0
@@ -167,6 +167,13 @@ def generate_nickname():
     # Capitalization
     result = titlecase(result)
 
+    return result
+
+
+def generate_nickname():
+    result = ""
+    while result == "":
+        result = _generate_nickname()
     return result
 
 
