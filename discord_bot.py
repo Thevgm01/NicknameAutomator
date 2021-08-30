@@ -4,12 +4,6 @@ from discord.ext import commands
 
 import nickname_generator
 
-token = None
-
-with open("discord_credentials.json", 'r') as file:
-    json = json.load(file)
-    token = json["token"]
-
 bot = commands.Bot(command_prefix='!')
 
 
@@ -27,4 +21,9 @@ async def post_nickname(ctx):
 
 
 def run():
+    file = open("discord_credentials.json", 'r')
+    json_file = json.load(file)
+    token = json_file["token"]
+    file.close()
+
     bot.run(token)
