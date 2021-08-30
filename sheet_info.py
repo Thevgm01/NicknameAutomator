@@ -2,6 +2,8 @@ def _map_letter(letter):
     return ord(letter.upper()) - ord('A')
 
 
+SHEET_NAME = "Nickname Categorization"
+
 ROW_OFFSET = 1
 COL_OFFSET = 3
 

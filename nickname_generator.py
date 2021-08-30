@@ -1,8 +1,8 @@
 import random
-import sheet_info
-from vowel_checker import is_vowel
 from titlecase import titlecase
 
+import sheet_info
+from vowel_checker import is_vowel
 
 _data = []
 _column_weights = []
@@ -131,10 +131,11 @@ def _generate_nickname():
             components_added += 1
 
     # Modifier
-    entry = _get_random_entry(sheet_info.MODIFIER)
-    if entry:
-        components.append(entry)
-        components_added += 1
+    if subject_plurality != Plurality.PLURAL:
+        entry = _get_random_entry(sheet_info.MODIFIER)
+        if entry:
+            components.append(entry)
+            components_added += 1
 
     # Post Everything
     entry = _get_random_entry(sheet_info.POST_EVERYTHING)
