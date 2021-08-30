@@ -7,6 +7,7 @@ SHEET_NAME = "Nickname Categorization"
 ROW_OFFSET = 1
 COL_OFFSET = 3
 
+NICKNAME = _map_letter('C')
 PRE_EVERYTHING = _map_letter('D')
 PRE_EVERYTHING_SINGULAR = _map_letter('E')
 QUANTITY_PLURAL = _map_letter('F')
