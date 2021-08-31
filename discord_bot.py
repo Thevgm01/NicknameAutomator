@@ -30,8 +30,9 @@ async def on_reaction_add(reaction, user):
     elif reaction.emoji == '➡':
         message = nickname_manager.get_next(reaction.message.id)
 
-    await reaction.message.edit(content=message)
-    await reaction.remove(user)
+    if message:
+        await reaction.message.edit(content=message)
+        await reaction.remove(user)
 
 
 # @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
