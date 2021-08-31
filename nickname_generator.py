@@ -79,11 +79,12 @@ def generate_nickname(generator):
     entry, source = _get_random_entry(generator, sheet_info.PRE_SUBJECT)
     if entry:
         components[0] = entry + components[0]
-        log.append(source)
+        log.insert(0, source)
         components_added += 1
 
     # Adjectives/Descriptors
     descriptors = []
+    log_descriptors = []
     while True:
         coords = _get_random_coords(generator, sheet_info.ADJECTIVE, sheet_info.DESCRIPTOR)
         entry, source = _get_entry(generator, coords)
@@ -91,38 +92,40 @@ def generate_nickname(generator):
             entry2, source2 = _get_random_entry(generator, sheet_info.ADVERB)
             if entry2:
                 descriptors.append(entry2)
-                log.append(source2)
+                log_descriptors.append(source2)
                 components_added += 1
+
+            log_descriptors.append(source)
 
             entry2, source2 = _get_random_entry(generator, sheet_info.POST_ADJECTIVE)
             if entry2:
                 entry = entry + entry2
-                log.append(source2)
+                log_descriptors.append(source2)
                 components_added += 1
 
             descriptors.append(entry)
-            log.append(source)
             components_added += 1
         else:
             if entry:
                 descriptors.append(entry)
-                log.append(source)
+                log_descriptors.append(source)
                 components_added += 1
             break
     components = descriptors + components
+    log = log_descriptors + log
 
     # Curse
     entry, source = _get_random_entry(generator, sheet_info.CURSE)
     if entry:
         components.insert(0, entry)
-        log.append(source)
+        log.insert(0, source)
         components_added += 1
 
     # Quantity
     entry, source = _get_random_entry(generator, sheet_info.QUANTITY_PLURAL)
     if entry and subject_plurality != Plurality.SINGULAR:
         components.insert(0, entry)
-        log.append(source)
+        log.insert(0, source)
         components_added += 1
 
     # Pre Everything
@@ -132,7 +135,7 @@ def generate_nickname(generator):
         entry, source = _get_random_entry(generator, sheet_info.PRE_EVERYTHING)
     if entry:
         components.insert(0, entry)
-        log.append(source)
+        log.insert(0, source)
         components_added += 1
 
     # Post Subject
