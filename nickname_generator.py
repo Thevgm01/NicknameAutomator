@@ -1,4 +1,3 @@
-import random
 from titlecase import titlecase
 
 import sheet_info
@@ -16,29 +15,29 @@ class Plurality:
     PLURAL = 2
 
 
-def _get_random_coords_from_tuple(cols):
-    rand_row = random.randrange(sheet_info.ROW_OFFSET, _num_rows)
+def _get_random_coords_from_tuple(generator, cols):
+    rand_row = generator.randrange(sheet_info.ROW_OFFSET, _num_rows)
     weights = []
     for col in cols:
         weights.append(_column_weights[col])
-    rand_col = random.choices(cols, weights)[0]
+    rand_col = generator.choices(cols, weights)[0]
     return [rand_row, rand_col]
 
 
-def _get_random_coords(*cols):
-    return _get_random_coords_from_tuple(cols)
+def _get_random_coords(generator, *cols):
+    return _get_random_coords_from_tuple(generator, cols)
 
 
-def _get_random_entry(*cols):
-    coords = _get_random_coords_from_tuple(cols)
-    return _get_entry(coords)
+def _get_random_entry(generator, *cols):
+    coords = _get_random_coords_from_tuple(generator, cols)
+    return _get_entry(generator, coords)
 
 
-def _get_entry(coords):
+def _get_entry(generator, coords):
     entry = _data[coords[0]][coords[1]]
     if '|' in entry:
         entries = entry.split('|')
-        entry = random.choice(entries)
+        entry = generator.choice(entries)
 
     source = _data[coords[0]][sheet_info.NICKNAME]
     if entry:
@@ -52,7 +51,7 @@ def _get_entry(coords):
     return entry, source
 
 
-def _generate_nickname():
+def generate_nickname(generator):
     entry = ""
     components = []
     log = []
@@ -62,8 +61,8 @@ def _generate_nickname():
 
     # Any subject, don't proceed until one is found
     while not components:
-        coords = _get_random_coords_from_tuple(sheet_info.ALL_SUBJECTS)
-        entry, source = _get_entry(coords)
+        coords = _get_random_coords_from_tuple(generator, sheet_info.ALL_SUBJECTS)
+        entry, source = _get_entry(generator, coords)
         if entry:
             components.append(entry)
             log.append(source)
@@ -76,7 +75,7 @@ def _generate_nickname():
             subject_ends_in_vowel = is_vowel(entry[-1])
 
     # Pre Subject
-    entry, source = _get_random_entry(sheet_info.PRE_SUBJECT)
+    entry, source = _get_random_entry(generator, sheet_info.PRE_SUBJECT)
     if entry:
         components[0] = entry + components[0]
         log.append(source)
@@ -85,16 +84,16 @@ def _generate_nickname():
     # Adjectives/Descriptors
     descriptors = []
     while True:
-        coords = _get_random_coords(sheet_info.ADJECTIVE, sheet_info.DESCRIPTOR)
-        entry, source = _get_entry(coords)
+        coords = _get_random_coords(generator, sheet_info.ADJECTIVE, sheet_info.DESCRIPTOR)
+        entry, source = _get_entry(generator, coords)
         if entry and coords[1] == sheet_info.ADJECTIVE:
-            entry2, source2 = _get_random_entry(sheet_info.ADVERB)
+            entry2, source2 = _get_random_entry(generator, sheet_info.ADVERB)
             if entry2:
                 descriptors.append(entry2)
                 log.append(source2)
                 components_added += 1
 
-            entry2, source2 = _get_random_entry(sheet_info.POST_ADJECTIVE)
+            entry2, source2 = _get_random_entry(generator, sheet_info.POST_ADJECTIVE)
             if entry2:
                 entry = entry + entry2
                 log.append(source2)
@@ -112,14 +111,14 @@ def _generate_nickname():
     components = descriptors + components
 
     # Curse
-    entry, source = _get_random_entry(sheet_info.CURSE)
+    entry, source = _get_random_entry(generator, sheet_info.CURSE)
     if entry:
         components.insert(0, entry)
         log.append(source)
         components_added += 1
 
     # Quantity
-    entry, source = _get_random_entry(sheet_info.QUANTITY_PLURAL)
+    entry, source = _get_random_entry(generator, sheet_info.QUANTITY_PLURAL)
     if entry and subject_plurality != Plurality.SINGULAR:
         components.insert(0, entry)
         log.append(source)
@@ -127,9 +126,9 @@ def _generate_nickname():
 
     # Pre Everything
     if subject_plurality == Plurality.SINGULAR:
-        entry, source = _get_random_entry(sheet_info.PRE_EVERYTHING, sheet_info.PRE_EVERYTHING_SINGULAR)
+        entry, source = _get_random_entry(generator, sheet_info.PRE_EVERYTHING, sheet_info.PRE_EVERYTHING_SINGULAR)
     else:
-        entry, source = _get_random_entry(sheet_info.PRE_EVERYTHING)
+        entry, source = _get_random_entry(generator, sheet_info.PRE_EVERYTHING)
     if entry:
         components.insert(0, entry)
         log.append(source)
@@ -137,26 +136,26 @@ def _generate_nickname():
 
     # Post Subject
     if subject_plurality != Plurality.PLURAL:
-        coords = _get_random_coords(sheet_info.POST_SUBJECT_SINGULAR)
-        entry, source = _get_entry(coords)
+        coords = _get_random_coords(generator, sheet_info.POST_SUBJECT_SINGULAR)
+        entry, source = _get_entry(generator, coords)
         if entry:
             new_coords = [coords[0], sheet_info.POST_SUBJECT_AFTER_VOWEL]
-            if subject_ends_in_vowel and _get_entry(new_coords):
-                entry, source = _get_entry(new_coords)
+            if subject_ends_in_vowel and _get_entry(generator, new_coords):
+                entry, source = _get_entry(generator, new_coords)
             components[-1] = components[-1] + entry
             log.append(source)
             components_added += 1
 
     # Modifier
     if subject_plurality != Plurality.PLURAL:
-        entry, source = _get_random_entry(sheet_info.MODIFIER)
+        entry, source = _get_random_entry(generator, sheet_info.MODIFIER)
         if entry:
             components.append(entry)
             log.append(source)
             components_added += 1
 
     # Post Everything
-    entry, source = _get_random_entry(sheet_info.POST_EVERYTHING)
+    entry, source = _get_random_entry(generator, sheet_info.POST_EVERYTHING)
     if entry:
         components.append(entry)
         log.append(source)
@@ -206,16 +205,9 @@ def _generate_nickname():
 
     log_result = '\n'.join(log)
     print(result)
-    print(log_result)
-    print("-----------------")
+    #print(log_result)
+    #print("-----------------")
 
-    return result
-
-
-def generate_nickname():
-    result = ""
-    while result == "":
-        result = _generate_nickname()
     return result
 
 

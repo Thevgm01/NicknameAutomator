@@ -3,6 +3,7 @@ import json
 from discord.ext import commands
 
 import nickname_generator
+import nickname_manager
 import sheet_manager
 
 bot = commands.Bot(command_prefix='!')
@@ -17,6 +18,19 @@ async def on_ready():
 async def on_reaction_add(reaction, user):
     if user == bot.user:
         return
+
+    #['⬅', '⭐', '❓', '➡']
+    message = ""
+    if reaction.emoji == '⬅':
+        message = nickname_manager.get_prev(reaction.message.id)
+    elif reaction.emoji == '⭐':
+        print("Not implemented")
+    elif reaction.emoji == '❓':
+        message = nickname_manager.toggle_source(reaction.message.id)
+    elif reaction.emoji == '➡':
+        message = nickname_manager.get_next(reaction.message.id)
+
+    await reaction.message.edit(content=message)
     await reaction.remove(user)
 
 
@@ -51,15 +65,18 @@ async def post_nickname(ctx, *args):
 
 @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
 async def post_nickname_v2(ctx, *args):
-    response = nickname_generator.generate_nickname()
+    nickname = nickname_manager.Nickname()
+    response = nickname.generate()
     message = await ctx.send(response)
+    nickname_manager.remember(message.id, nickname)
     for reaction in ['⬅', '⭐', '❓', '➡']:
         await message.add_reaction(reaction)
 
 
 @bot.command(name='refresh', help='Reloads the nickname info')
 async def refresh(ctx, *args):
-    nickname_generator.set_data(sheet_manager.get_data())
+    data = sheet_manager.components.get_all_values()
+    nickname_generator.set_data(data)
     await ctx.send("Data refreshed.")
 
 
