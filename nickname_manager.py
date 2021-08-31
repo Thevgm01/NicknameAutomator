@@ -12,12 +12,20 @@ class Nickname:
     def seed(self):
         return self.base_seed + self.index
 
+    def toggle_source(self):
+        self.show_source = not self.show_source
+        return self.generate()
+
     def generate(self):
         self.generator.seed(self.seed())
         result = ""
         while result == "":
             result = generate_nickname(self.generator)
-        return result
+
+        if self.show_source:
+            return '\n'.join(result)
+        else:
+            return result[0]
 
     def __init__(self):
         self.generator = random.Random()
@@ -26,6 +34,10 @@ class Nickname:
 
 def remember(message_id, nickname):
     nicks[message_id] = nickname
+
+
+def toggle_source(message_id):
+    return nicks[message_id].toggle_source()
 
 
 def get_next(message_id):

@@ -7,6 +7,7 @@ _data = []
 _column_weights = []
 _num_rows = 0
 _num_cols = 0
+_LOG_HIGHLIGHT = "__"
 
 
 class Plurality:
@@ -44,7 +45,7 @@ def _get_entry(generator, coords):
         try:
             start_index = source.lower().index(entry.lower())
             end_index = start_index + len(entry)
-            source = source[:start_index] + "**" + source[start_index:end_index] + "**" + source[end_index:]
+            source = source[:start_index] + _LOG_HIGHLIGHT + source[start_index:end_index] + _LOG_HIGHLIGHT + source[end_index:]
         except ValueError:
             print("%s not found in %s" % (entry, source))
 
@@ -204,11 +205,8 @@ def generate_nickname(generator):
     result = titlecase(result)
 
     log_result = '\n'.join(log)
-    print(result)
-    #print(log_result)
-    #print("-----------------")
 
-    return result
+    return result, log_result
 
 
 def _generate_column_weights():
