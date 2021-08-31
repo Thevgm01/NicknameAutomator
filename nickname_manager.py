@@ -6,10 +6,8 @@ nicks = {}
 
 
 class Nickname:
-    base_seed = random.randrange(9999999)
     index = 0
     show_source = False
-    generator = random.Random()
 
     def seed(self):
         return self.base_seed + self.index
@@ -20,6 +18,10 @@ class Nickname:
         while result == "":
             result = generate_nickname(self.generator)
         return result
+
+    def __init__(self):
+        self.generator = random.Random()
+        self.base_seed = self.generator.randrange(999999999)
 
 
 def remember(message_id, nickname):
