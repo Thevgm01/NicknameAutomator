@@ -13,7 +13,14 @@ async def on_ready():
     print(f'{bot.user.name} has connected to Discord and {len(bot.guilds)} guilds')
 
 
-@bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user == bot.user:
+        return
+    await reaction.remove(user)
+
+
+# @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
 async def post_nickname(ctx, *args):
     num = 1
     force = ""
@@ -42,8 +49,16 @@ async def post_nickname(ctx, *args):
     await ctx.send(response)
 
 
+@bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
+async def post_nickname_v2(ctx, *args):
+    response = nickname_generator.generate_nickname()
+    message = await ctx.send(response)
+    for reaction in ['⬅', '⭐', '❓', '➡']:
+        await message.add_reaction(reaction)
+
+
 @bot.command(name='refresh', help='Reloads the nickname info')
-async def post_nickname(ctx, *args):
+async def refresh(ctx, *args):
     nickname_generator.set_data(sheet_manager.get_data())
     await ctx.send("Data refreshed.")
 
