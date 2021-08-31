@@ -56,7 +56,6 @@ def generate_nickname(generator):
     entry = ""
     components = []
     log = []
-    components_added = 0
     subject_plurality = -1
     subject_ends_in_vowel = False
 
@@ -80,7 +79,6 @@ def generate_nickname(generator):
     if entry:
         components[0] = entry + components[0]
         log.insert(0, source)
-        components_added += 1
 
     # Adjectives/Descriptors
     descriptors = []
@@ -93,7 +91,6 @@ def generate_nickname(generator):
             if entry2:
                 descriptors.append(entry2)
                 log_descriptors.append(source2)
-                components_added += 1
 
             log_descriptors.append(source)
 
@@ -101,15 +98,12 @@ def generate_nickname(generator):
             if entry2:
                 entry = entry + entry2
                 log_descriptors.append(source2)
-                components_added += 1
 
             descriptors.append(entry)
-            components_added += 1
         else:
             if entry:
                 descriptors.append(entry)
                 log_descriptors.append(source)
-                components_added += 1
             break
     components = descriptors + components
     log = log_descriptors + log
@@ -119,14 +113,12 @@ def generate_nickname(generator):
     if entry:
         components.insert(0, entry)
         log.insert(0, source)
-        components_added += 1
 
     # Quantity
     entry, source = _get_random_entry(generator, sheet_info.QUANTITY_PLURAL)
     if entry and subject_plurality != Plurality.SINGULAR:
         components.insert(0, entry)
         log.insert(0, source)
-        components_added += 1
 
     # Pre Everything
     if subject_plurality == Plurality.SINGULAR:
@@ -136,7 +128,6 @@ def generate_nickname(generator):
     if entry:
         components.insert(0, entry)
         log.insert(0, source)
-        components_added += 1
 
     # Post Subject
     if subject_plurality != Plurality.PLURAL:
@@ -148,7 +139,6 @@ def generate_nickname(generator):
                 entry, source = _get_entry(generator, new_coords)
             components[-1] = components[-1] + entry
             log.append(source)
-            components_added += 1
 
     # Modifier
     if subject_plurality != Plurality.PLURAL:
@@ -156,14 +146,12 @@ def generate_nickname(generator):
         if entry:
             components.append(entry)
             log.append(source)
-            components_added += 1
 
     # Post Everything
     entry, source = _get_random_entry(generator, sheet_info.POST_EVERYTHING)
     if entry:
         components.append(entry)
         log.append(source)
-        components_added += 1
 
     # TODO Replace all double spaces with single spaces
     # TODO Make sure the same word can't appear more than once
@@ -179,7 +167,7 @@ def generate_nickname(generator):
 
     # Abort if nothing new was added
     # TODO Make this a low chance instead of automatic?
-    if components_added <= 1:
+    if len(log) <= 1:
         return ""
 
     # Ensure the same word can't appear twice
