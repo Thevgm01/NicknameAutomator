@@ -24,7 +24,10 @@ async def on_reaction_add(reaction, user):
     if reaction.emoji == '⬅':
         message = nickname_manager.get_prev(reaction.message.id)
     elif reaction.emoji == '⭐':
-        print("Not implemented")
+        content = message.content
+        if '\n' in content:
+            content = content.split('\n')[0]
+        sheet_manager.add_favorite(user.id, content)
     elif reaction.emoji == '❓':
         message = nickname_manager.toggle_source(reaction.message.id)
     elif reaction.emoji == '➡':

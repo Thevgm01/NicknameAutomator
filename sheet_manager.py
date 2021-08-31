@@ -12,3 +12,21 @@ _credentials = ServiceAccountCredentials.from_json_keyfile_name("google_credenti
 _client = gspread.authorize(_credentials)
 _sheet = _client.open(sheet_info.SHEET_NAME)  # Open the spreadsheet
 components = _sheet.worksheet("Components")
+favorites = _sheet.worksheet("Favorites")
+
+
+favorites_users = []
+
+
+class User:
+    id = ""
+    num = 0
+
+
+def add_favorite(user_id, content):
+    index = 0
+    if user_id not in favorites_user_ids:
+        index = len(favorites_user_ids)
+        favorites_user_ids.append(user_id)
+    else:
+        index = favorites_user_ids
