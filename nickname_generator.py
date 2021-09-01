@@ -135,7 +135,7 @@ def generate_nickname(generator):
         entry, source = _get_entry(generator, coords)
         if entry:
             new_coords = [coords[0], sheet_info.POST_SUBJECT_AFTER_VOWEL]
-            if subject_ends_in_vowel and _get_entry(generator, new_coords):
+            if subject_ends_in_vowel and _get_entry(generator, new_coords)[0]:
                 entry, source = _get_entry(generator, new_coords)
             components[-1] = components[-1] + entry
             log.append(source)
@@ -153,17 +153,10 @@ def generate_nickname(generator):
         components.append(entry)
         log.append(source)
 
-    # TODO Replace all double spaces with single spaces
-    # TODO Make sure the same word can't appear more than once
     # TODO Multiple subjects
     # TODO Replace the first syllable (as with "ya'llternative")
     # TODO Think harder about certain multi subject separators (like "up in the")
     # TODO Change "spreading" to allow for things like "Spreading Kuzco's Poison"
-    # TODO Fix logging, extras are still being added to the end as with:
-    #       Blursed_pasta
-    #       Forest **Pasta**
-    #       Baja **blursed_**images
-    #       The Corkinator
 
     # Abort if nothing new was added
     # TODO Make this a low chance instead of automatic?
