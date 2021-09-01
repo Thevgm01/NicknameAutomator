@@ -61,12 +61,11 @@ def add_favorite(user_id, content):
     if user_id not in favorites_user_ids:
         index = len(favorites_user_ids)
         favorites_user_ids.append(user_id)
-        favorites_user_num.append(0)
         cells.append(Cell(row=1, col=index + 1, value=user_id))
+        # TODO Also add the formula when adding a new user
     else:
         index = favorites_user_ids.index(user_id)
 
     favorites_user_num[index] += 1
-    cells.append(Cell(row=2, col=index + 1, value=favorites_user_num[index]))
     cells.append(Cell(row=favorites_user_num[index] + 2, col=index + 1, value=content))
     favorites_sheet.update_cells(cells)
