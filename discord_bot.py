@@ -19,22 +19,24 @@ async def on_reaction_add(reaction, user):
     if user == bot.user:
         return
 
-    #['⬅', '⭐', '❓', '➡']
-    message = ""
-    if reaction.emoji == '⬅':
-        message = nickname_manager.get_prev(reaction.message.id)
-    elif reaction.emoji == '⭐':
-        content = message.content
-        if '\n' in content:
-            content = content.split('\n')[0]
-        sheet_manager.add_favorite(user.id, content)
-    elif reaction.emoji == '❓':
-        message = nickname_manager.toggle_source(reaction.message.id)
-    elif reaction.emoji == '➡':
-        message = nickname_manager.get_next(reaction.message.id)
+    # ['⬅', '⭐', '❓', '➡']
+    msg_id = reaction.message.id
+    if msg_id in nickname_manager.nicks:
+        if reaction.emoji == '⬅':
+            message = nickname_manager.get_prev(msg_id)
+            await reaction.message.edit(content=message)
+        elif reaction.emoji == '⭐':
+            content = reaction.message.content
+            if '\n' in content:
+                content = content.split('\n')[0]
+            sheet_manager.add_favorite(user.id, content)
+        elif reaction.emoji == '❓':
+            message = nickname_manager.toggle_source(msg_id)
+            await reaction.message.edit(content=message)
+        elif reaction.emoji == '➡':
+            message = nickname_manager.get_next(msg_id)
+            await reaction.message.edit(content=message)
 
-    if message:
-        await reaction.message.edit(content=message)
         await reaction.remove(user)
 
 
