@@ -27,9 +27,12 @@ class Nickname:
         else:
             return result[0]
 
-    def __init__(self):
+    def __init__(self, seed=0):
         self.generator = random.Random()
-        self.base_seed = self.generator.randrange(999999999)
+        if seed:
+            self.base_seed = seed
+        else:
+            self.base_seed = self.generator.randrange(999999999)
 
 
 def remember(message_id, nickname):
@@ -48,6 +51,5 @@ def get_next(message_id):
 
 def get_prev(message_id):
     nick = nicks[message_id]
-    if nick.index > 0:
-        nick.index -= 1
+    nick.index -= 1
     return nick.generate()
