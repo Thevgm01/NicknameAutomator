@@ -1,4 +1,5 @@
 import gspread
+from gspread import Cell
 from oauth2client.service_account import ServiceAccountCredentials
 
 import sheet_info
@@ -27,16 +28,18 @@ if favorites.cell(1, 1).value:
 
 
 def add_favorite(user_id, content):
+    cells = []
     index = 0
     user_id = str(user_id)
     if user_id not in favorites_user_ids:
         index = len(favorites_user_ids)
         favorites_user_ids.append(user_id)
         favorites_user_num.append(0)
-        favorites.update_cell(1, index + 1, user_id)
+        cells.append(Cell(row=1, col=index + 1, value=user_id))
     else:
         index = favorites_user_ids.index(user_id)
 
     favorites_user_num[index] += 1
-    favorites.update_cell(2, index + 1, favorites_user_num[index])
-    favorites.update_cell(favorites_user_num[index] + 2, index + 1, content)
+    cells.append(Cell(row=2, col=index + 1, value=favorites_user_num[index]))
+    cells.append(Cell(row=favorites_user_num[index] + 2, col=index + 1, value=content))
+    favorites.update_cells(cells)
