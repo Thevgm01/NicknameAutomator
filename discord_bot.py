@@ -6,6 +6,9 @@ import nickname_generator
 import nickname_manager
 import sheet_manager
 
+# Bot / Change Nickname, Manage Nickname, Send Messages, Manage Messages, Read Message History, Add Reactions
+# https://discord.com/api/oauth2/authorize?client_id=878364959447351296&permissions=201402432&scope=bot
+
 bot = commands.Bot(command_prefix='!')
 
 
@@ -15,29 +18,33 @@ async def on_ready():
 
 
 @bot.event
-async def on_reaction_add(reaction, user):
+async def on_raw_reaction_add(payload):
+    target_message = await bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
+    msg_id = target_message.id
+    reaction = payload.emoji.name
+    user = payload.member
+
     if user == bot.user:
         return
 
     # ['⬅', '⭐', '❓', '➡']
-    msg_id = reaction.message.id
-    if msg_id in nickname_manager.nicks:
-        if reaction.emoji == '⬅':
-            message = nickname_manager.get_prev(msg_id)
-            await reaction.message.edit(content=message)
-        elif reaction.emoji == '⭐':
-            content = reaction.message.content
-            if '\n' in content:
-                content = content.split('\n')[0]
-            sheet_manager.add_favorite(user.id, content)
-        elif reaction.emoji == '❓':
-            message = nickname_manager.toggle_source(msg_id)
-            await reaction.message.edit(content=message)
-        elif reaction.emoji == '➡':
-            message = nickname_manager.get_next(msg_id)
-            await reaction.message.edit(content=message)
+    # if msg_id in nickname_manager.nicks:
+    if reaction == '⬅':
+        message = nickname_manager.get_prev(msg_id)
+        await target_message.edit(content=message)
+    elif reaction == '⭐':
+        content = target_message.content
+        if '\n' in content:
+            content = content.split('\n')[0]
+        sheet_manager.add_favorite(user.id, content)
+    elif reaction == '❓':
+        message = nickname_manager.toggle_source(msg_id)
+        await target_message.edit(content=message)
+    elif reaction == '➡':
+        message = nickname_manager.get_next(msg_id)
+        await target_message.edit(content=message)
 
-        await reaction.remove(user)
+    await reaction.remove(user)
 
 
 # @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
