@@ -42,14 +42,11 @@ async def on_raw_reaction_add(payload):
     user = payload.member
 
     message_channel = bot.get_channel(payload.channel_id)
-    target_message = None
-    if message_channel:
-        target_message = await message_channel.fetch_message(msg_id)
-    else:
-        user = await bot.fetch_user(payload.user_id)
-        target_message = await user.fetch_message(msg_id)
-        print("DM")
-        dm = True
+
+    if not message_channel or isinstance(message_channel, discord.channel.DMChannel):
+        return
+
+    target_message = await message_channel.fetch_message(msg_id)
 
     if user == bot.user:
         return
