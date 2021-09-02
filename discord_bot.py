@@ -13,14 +13,18 @@ bot = commands.Bot(command_prefix='!')
 
 
 nicknames = {}
+new_nicknames = []
 changed_nicknames = []
 
 
-@tasks.loop(seconds=2.0)
+@tasks.loop(seconds=5.0)
 async def batch_update_sheet():
+    global new_nicknames
     global changed_nicknames
-    sheet_manager.update_message_seeds(changed_nicknames)
-    changed_nicknames = []
+    if new_nicknames or changed_nicknames:
+        sheet_manager.update_message_seeds(new_nicknames, changed_nicknames)
+        new_nicknames = []
+        changed_nicknames = []
 
 
 @bot.event
@@ -30,8 +34,8 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    target_message = await bot.get_channel(payload.channel_id).fetch_message(payload.message_id)
-    msg_id = str(target_message.id)
+    msg_id = payload.message_id
+    target_message = await bot.get_channel(payload.channel_id).fetch_message(msg_id)
     reaction = payload.emoji.name
     user = payload.member
 
@@ -44,8 +48,9 @@ async def on_raw_reaction_add(payload):
         nickname = nicknames[msg_id]
         if reaction == '⬅':
             message = nickname.get_prev()
+            if nickname not in changed_nicknames:
+                changed_nicknames.append(nickname)
             await target_message.edit(content=message)
-            changed_nicknames.append(nickname)
         elif reaction == '⭐':
             content = target_message.content
             if '\n' in content:
@@ -56,8 +61,9 @@ async def on_raw_reaction_add(payload):
             await target_message.edit(content=message)
         elif reaction == '➡':
             message = nickname.get_next()
+            if nickname not in changed_nicknames:
+                changed_nicknames.append(nickname)
             await target_message.edit(content=message)
-            changed_nicknames.append(nickname)
 
         await target_message.remove_reaction(payload.emoji, user)
 
@@ -96,8 +102,10 @@ async def post_nickname_v2(ctx, *args):
     nickname = Nickname()
     response = nickname.generate()
     message = await ctx.send(response)
+    nickname.message_id = message.id
+    nickname.message_row = len(nicknames) + 1
     nicknames[message.id] = nickname
-    sheet_manager.update_message_seed(message.id, nickname.seed())
+    new_nicknames.append(nickname)
     for reaction in ['⬅', '⭐', '❓', '➡']:
         await message.add_reaction(reaction)
 

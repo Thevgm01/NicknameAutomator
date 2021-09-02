@@ -44,10 +44,13 @@ def load_existing_messages():
     return nicknames
 
 
-def update_message_seeds(nicknames):
+def update_message_seeds(new_nicknames, changed_nicknames):
     cells = []
-    for nickname in nicknames:
-        cells.append(Cell(row=nickname.message_row, col=2, value=nickname.seed()))
+    for nickname in new_nicknames:
+        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_ID_COL, value=nickname.message_id))
+        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_SEED_COL, value=nickname.seed()))
+    for nickname in changed_nicknames:
+        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_SEED_COL, value=nickname.seed()))
     if cells:
         messages_sheet.update_cells(cells)
 
