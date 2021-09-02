@@ -42,8 +42,12 @@ async def on_raw_reaction_add(payload):
     if user == bot.user:
         return
 
+    if target_message.author != bot.user:
+        return
+
+    # print("Message %i was reacted to with %s" % (msg_id, reaction))
+
     # ['⬅', '⭐', '❓', '➡']
-    # if msg_id in nickname_manager.nicks:
     if msg_id in nicknames:
         nickname = nicknames[msg_id]
         if reaction == '⬅':
@@ -66,6 +70,8 @@ async def on_raw_reaction_add(payload):
             await target_message.edit(content=message)
 
         await target_message.remove_reaction(payload.emoji, user)
+    # else:
+        # print("Message %i not in tracked nicknames" % msg_id)
 
 
 # @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')

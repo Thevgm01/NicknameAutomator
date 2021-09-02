@@ -37,10 +37,13 @@ def load_existing_messages():
         message_ids = messages_sheet.col_values(1)
         seeds = messages_sheet.col_values(2)
         for i in range(len(message_ids)):
-            nickname = Nickname(int(seeds[i]))
-            nickname.message_id = message_ids[i]
+            msg_id = int(message_ids[i])
+            seed = int(seeds[i])
+            # print("Loading tracked message %i" % msg_id)
+            nickname = Nickname(seed)
+            nickname.message_id = msg_id
             nickname.message_row = i + 1
-            nicknames[message_ids[i]] = nickname
+            nicknames[msg_id] = nickname
     return nicknames
 
 
