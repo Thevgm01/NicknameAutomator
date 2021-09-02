@@ -1,5 +1,7 @@
 import os
 import json
+
+import discord
 from discord.ext import tasks, commands
 
 import nickname_generator
@@ -34,10 +36,20 @@ async def on_ready():
 
 @bot.event
 async def on_raw_reaction_add(payload):
+    dm = False
     msg_id = payload.message_id
-    target_message = await bot.get_channel(payload.channel_id).fetch_message(msg_id)
     reaction = payload.emoji.name
     user = payload.member
+
+    message_channel = bot.get_channel(payload.channel_id)
+    target_message = None
+    if message_channel:
+        target_message = await message_channel.fetch_message(msg_id)
+    else:
+        user = await bot.fetch_user(payload.user_id)
+        target_message = await user.fetch_message(msg_id)
+        print("DM")
+        dm = True
 
     if user == bot.user:
         return
@@ -49,6 +61,9 @@ async def on_raw_reaction_add(payload):
 
     # ['⬅', '⭐', '❓', '➡']
     if msg_id in nicknames:
+        if not dm:
+            await target_message.remove_reaction(payload.emoji, user)
+
         nickname = nicknames[msg_id]
         if reaction == '⬅':
             message = nickname.get_prev()
@@ -68,8 +83,6 @@ async def on_raw_reaction_add(payload):
             if nickname not in changed_nicknames:
                 changed_nicknames.append(nickname)
             await target_message.edit(content=message)
-
-        await target_message.remove_reaction(payload.emoji, user)
     # else:
         # print("Message %i not in tracked nicknames" % msg_id)
 
