@@ -2,8 +2,8 @@ import gspread
 from gspread import Cell
 from oauth2client.service_account import ServiceAccountCredentials
 
-import nickname_manager
 import sheet_info
+from nickname import Nickname
 
 _scope = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/spreadsheets",
@@ -29,29 +29,27 @@ if favorites_sheet.cell(1, 1).value:
 
 
 messages_sheet = _sheet.worksheet("Messages")
-messages = []
-seeds = []
-if messages_sheet.cell(1, 1).value:
-    messages = messages_sheet.col_values(1)
-    seeds = messages_sheet.col_values(2)
-    for i in range(len(messages)):
-        nickname_manager.nicks[messages[i]] = nickname_manager.Nickname(int(seeds[i]))
 
 
-def update_message_seed(message_id, seed):
+def load_existing_messages():
+    nicknames = {}
+    if messages_sheet.cell(1, 1).value:
+        message_ids = messages_sheet.col_values(1)
+        seeds = messages_sheet.col_values(2)
+        for i in range(len(message_ids)):
+            nickname = Nickname(int(seeds[i]))
+            nickname.message_id = message_ids[i]
+            nickname.message_row = i + 1
+            nicknames[message_ids[i]] = nickname
+    return nicknames
+
+
+def update_message_seeds(nicknames):
     cells = []
-    index = 0
-    message_id = str(message_id)
-    if message_id not in messages:
-        index = len(messages)
-        messages.append(message_id)
-        seeds.append(seed)
-        cells.append(Cell(row=index + 1, col=1, value=message_id))
-    else:
-        index = messages.index(message_id)
-
-    cells.append(Cell(row=index + 1, col=2, value=seed))
-    messages_sheet.update_cells(cells)
+    for nickname in nicknames:
+        cells.append(Cell(row=nickname.message_row, col=2, value=nickname.seed()))
+    if cells:
+        messages_sheet.update_cells(cells)
 
 
 def add_favorite(user_id, content):

@@ -1,20 +1,31 @@
 import os
 import json
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 import nickname_generator
-import nickname_manager
 import sheet_manager
 
 # Bot / Change Nickname, Manage Nickname, Send Messages, Manage Messages, Read Message History, Add Reactions
 # https://discord.com/api/oauth2/authorize?client_id=878364959447351296&permissions=201402432&scope=bot
+from nickname import Nickname
 
 bot = commands.Bot(command_prefix='!')
 
 
+nicknames = {}
+changed_nicknames = []
+
+
+@tasks.loop(seconds=2.0)
+async def batch_update_sheet():
+    global changed_nicknames
+    sheet_manager.update_message_seeds(changed_nicknames)
+    changed_nicknames = []
+
+
 @bot.event
 async def on_ready():
-    print(f'{bot.user.name} has connected to Discord and {len(bot.guilds)} guilds')
+    print(f'{bot.user.name} has connected to Discord and {len(bot.guilds)} guilds\nCurrently tracking {len(nicknames)} messages')
 
 
 @bot.event
@@ -29,23 +40,24 @@ async def on_raw_reaction_add(payload):
 
     # ['⬅', '⭐', '❓', '➡']
     # if msg_id in nickname_manager.nicks:
-    if msg_id in sheet_manager.messages:
+    if msg_id in nicknames:
+        nickname = nicknames[msg_id]
         if reaction == '⬅':
-            message = nickname_manager.get_prev(msg_id)
+            message = nickname.get_prev()
             await target_message.edit(content=message)
-            sheet_manager.update_message_seed(msg_id, nickname_manager.nicks[msg_id].seed())
+            changed_nicknames.append(nickname)
         elif reaction == '⭐':
             content = target_message.content
             if '\n' in content:
                 content = content.split('\n')[0]
             sheet_manager.add_favorite(user.id, content)
         elif reaction == '❓':
-            message = nickname_manager.toggle_source(msg_id)
+            message = nickname.toggle_source()
             await target_message.edit(content=message)
         elif reaction == '➡':
-            message = nickname_manager.get_next(msg_id)
+            message = nickname.get_next()
             await target_message.edit(content=message)
-            sheet_manager.update_message_seed(msg_id, nickname_manager.nicks[msg_id].seed())
+            changed_nicknames.append(nickname)
 
         await target_message.remove_reaction(payload.emoji, user)
 
@@ -81,10 +93,10 @@ async def post_nickname(ctx, *args):
 
 @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
 async def post_nickname_v2(ctx, *args):
-    nickname = nickname_manager.Nickname()
+    nickname = Nickname()
     response = nickname.generate()
     message = await ctx.send(response)
-    nickname_manager.remember(message.id, nickname)
+    nicknames[message.id] = nickname
     sheet_manager.update_message_seed(message.id, nickname.seed())
     for reaction in ['⬅', '⭐', '❓', '➡']:
         await message.add_reaction(reaction)
@@ -92,8 +104,12 @@ async def post_nickname_v2(ctx, *args):
 
 @bot.command(name='refresh', help='Reloads the nickname info')
 async def refresh(ctx, *args):
+    global nicknames
+    nicknames = sheet_manager.load_existing_messages()
+
     data = sheet_manager.components.get_all_values()
     nickname_generator.set_data(data)
+
     await ctx.send("Data refreshed.")
 
 
@@ -103,4 +119,5 @@ def run():
     token = json_file["token"]
     file.close()
 
+    batch_update_sheet.start()
     bot.run(token)
