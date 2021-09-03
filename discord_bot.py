@@ -124,6 +124,7 @@ async def post_nickname_v2(ctx, *args):
     new_nicknames.append(nickname)
     for reaction in ['⬅', '⭐', '❓', '➡']:
         await message.add_reaction(reaction)
+    await ctx.message.delete()
 
 
 @bot.command(name='refresh', help='Reloads the nickname info')
@@ -134,7 +135,8 @@ async def refresh(ctx, *args):
     data = sheet_manager.components.get_all_values()
     nickname_generator.set_data(data)
 
-    await ctx.send("Data refreshed.")
+    await ctx.send("Data refreshed.", delete_after=3)
+    await ctx.message.delete()
 
 
 def run():
