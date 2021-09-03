@@ -50,10 +50,10 @@ def load_existing_messages():
 def update_message_seeds(new_nicknames, changed_nicknames):
     cells = []
     for nickname in new_nicknames:
-        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_ID_COL, value=nickname.message_id))
-        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_SEED_COL, value=nickname.seed()))
+        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_ID_COL, value=str(nickname.message_id)))
+        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_SEED_COL, value=str(nickname.seed())))
     for nickname in changed_nicknames:
-        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_SEED_COL, value=nickname.seed()))
+        cells.append(Cell(row=nickname.message_row, col=sheet_info.NICKNAME_MESSAGE_SEED_COL, value=str(nickname.seed())))
     if cells:
         messages_sheet.update_cells(cells)
 
@@ -65,7 +65,7 @@ def add_favorite(user_id, content):
     if user_id not in favorites_user_ids:
         index = len(favorites_user_ids)
         favorites_user_ids.append(user_id)
-        cells.append(Cell(row=1, col=index + 1, value=user_id))
+        cells.append(Cell(row=1, col=index + 1, value=str(user_id)))
         # TODO Also add the formula when adding a new user
     else:
         index = favorites_user_ids.index(user_id)
