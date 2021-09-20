@@ -84,12 +84,13 @@ async def on_raw_reaction_add(payload):
         # print("Message %i not in tracked nicknames" % msg_id)
 
 
-# @bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
+@bot.command(name='name', aliases=["n", "nick", "nickname"], help="Generates a random nickname\nType \'x#\' to generate that many nickanames\nType any sequence of letters to try and force it to apepar")
 async def post_nickname(ctx, *args):
     num = 1
     force = ""
-    attempts = 0
-    limit = 10000
+    force_attempts = 0
+    force_attempt_limit = 10000
+    char_limit = 2000
     for arg in args:
         if arg[0] == 'x':
             try:
@@ -99,21 +100,26 @@ async def post_nickname(ctx, *args):
         else:
             force = arg.lower()
     response = ""
+
+    nickname = Nickname()
+
     i = 0
     while i < num:
-        cur = nickname_generator.generate_nickname()
+        cur = nickname.get_next()
         if force == "" or force in cur.lower():
+            if len(response) + len(cur) >= char_limit:
+                break
             response += cur + '\n'
             i += 1
         elif response == "":  # Track failures if nothing has come back successful yet
-            if attempts >= limit:
-                await ctx.send("I generated %s nicknames, but none of them had the string \"%s\"." % (limit, force))
+            if force_attempts >= force_attempt_limit:
+                await ctx.send("I generated %s nicknames, but none of them had the string \"%s\"." % (force_attempt_limit, force))
                 return
-            attempts += 1
+            force_attempts += 1
     await ctx.send(response)
 
 
-@bot.command(name='name', aliases=["n", "nick", "nickname"], help='Generates a random nickname')
+@bot.command(name='name2', aliases=["n2", "nick2", "nickname2", "forever"], help="Shows a message that you can react to with different commands")
 async def post_nickname_v2(ctx, *args):
     nickname = Nickname()
     response = nickname.generate()
