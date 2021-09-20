@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 import discord
 from discord.ext import tasks, commands
@@ -86,6 +87,8 @@ async def on_raw_reaction_add(payload):
 
 @bot.command(name='name', aliases=["n", "nick", "nickname"], help="Generates a random nickname\nType \'x#\' to generate that many nickanames\nType any sequence of letters to try and force it to apepar")
 async def post_nickname(ctx, *args):
+    start_time = time.time()
+
     num = 1
     force = ""
     force_attempts = 0
@@ -116,6 +119,9 @@ async def post_nickname(ctx, *args):
                 await ctx.send("I generated %s nicknames, but none of them had the string \"%s\"." % (force_attempt_limit, force))
                 return
             force_attempts += 1
+        if time.time() - start_time > 0.25:  # Display the typing indicator if this is taking too long
+            await ctx.trigger_typing()
+            start_time = time.time() + 9  # Trigger it again in 9 seconds, since trigger_typing() automatically stops after 10
     await ctx.send(response)
 
 
