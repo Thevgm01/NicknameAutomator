@@ -31,7 +31,7 @@ async def batch_update_sheet():
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user.name} has connected to Discord and {len(bot.guilds)} guilds\nCurrently tracking {len(nicknames)} messages')
+    print(bot.user.name + " has connected to Discord and " + str(len(bot.guilds)) + " guilds\nCurrently tracking " + str(len(nicknames)) + " messages")
 
 
 @bot.event
