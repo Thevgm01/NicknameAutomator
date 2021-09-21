@@ -4,6 +4,7 @@ import time
 
 import discord
 from discord.ext import tasks, commands
+from discord.ext.commands import has_permissions
 
 import nickname_generator
 import sheet_manager
@@ -140,7 +141,10 @@ async def post_nickname_v2(ctx, *args):
 
 
 @bot.command(name='refresh', help='Reloads the nickname info')
+@commands.has_permissions(administrator=True)
 async def refresh(ctx, *args):
+    await ctx.trigger_typing()
+
     global nicknames
     nicknames = sheet_manager.load_existing_messages()
 
@@ -149,6 +153,13 @@ async def refresh(ctx, *args):
 
     await ctx.send("Data refreshed.", delete_after=3)
     await ctx.message.delete()
+
+
+@bot.command(name='kill', aliases=['stop', 'shutdown'], help='Stops the bot')
+@commands.has_permissions(administrator=True)
+async def kill(ctx):
+    await ctx.send("Goodbye.")
+    exit(1)
 
 
 def run():
