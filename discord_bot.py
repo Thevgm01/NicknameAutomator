@@ -93,7 +93,7 @@ async def post_nickname(ctx, *args):
     num = 1
     force = ""
     force_attempts = 0
-    force_attempt_limit = 10000
+    force_attempt_limit = 50000
     char_limit = 2000
     for arg in args:
         if arg[0] == 'x':
@@ -101,8 +101,11 @@ async def post_nickname(ctx, *args):
                 num = int(arg[1:])
             except ValueError:
                 pass
-        else:
-            force = arg.lower()
+        elif not force:
+            if arg.startswith("acronym="):
+                force = '(' + arg[8:].lower() + ')'
+            else:
+                force = arg.lower()
     response = ""
 
     nickname = Nickname()
