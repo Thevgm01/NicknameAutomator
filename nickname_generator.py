@@ -153,6 +153,9 @@ def generate_nickname(generator):
         components.append(entry)
         log.append(source)
 
+    # Special
+    special = _get_random_entry(generator, sheet_info.SPECIAL)[0]
+
     # TODO Multiple subjects
     # TODO Replace the first syllable (as with "ya'llternative")
     # TODO Think harder about certain multi subject separators (like "up in the")
@@ -186,7 +189,25 @@ def generate_nickname(generator):
     result = ' '.join(result)
 
     # Capitalization
-    result = titlecase(result)
+    if special == "ALL_CAPS":
+        result = result.upper()
+    else:
+        result = titlecase(result)
+
+    # Acronym
+    if special == "ACRONYM":
+        acronym = ""
+        word_start = True
+        i = 0
+        while i < len(result):
+            if word_start:
+                acronym += result[i]
+                word_start = False
+            elif result[i] == ' ' or result[i] == '-' or result[i] == '_':
+                word_start = True
+            i += 1
+        if len(acronym) > 1:
+            result += ' (' + acronym.upper() + ')'
 
     log_result = '\n'.join(log)
 
